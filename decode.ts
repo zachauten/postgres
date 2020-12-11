@@ -224,6 +224,30 @@ function decodeJsonArray(value: string): unknown[] {
   return parseArray(value, JSON.parse);
 }
 
+function decodeCircle(value: string) {
+  const match = value.match(/<\((.+),(.+)\),(.+)>/);
+  if (!match) return null;
+  return {
+    x: parseFloat(match[1]),
+    y: parseFloat(match[2]),
+    radius: parseFloat(match[3]),
+  };
+}
+
+function decodeCircleArray(value: string): unknown[] {
+  return parseArray(value, decodeCircle);
+}
+
+function decodeLineSegment(value: string) {
+  const match = value.match(/\[(\(.+\)),(\(.+\))\]/);
+  if (!match) return null;
+  return [decodePoint(match[1]), decodePoint(match[2])];
+}
+
+function decodeLineSegmentArray(value: string) {
+  return parseArray(value, decodeLineSegment);
+}
+
 // deno-lint-ignore no-explicit-any
 function decodeText(value: Uint8Array, typeOid: number): any {
   const strValue = decoder.decode(value);
@@ -291,6 +315,14 @@ function decodeText(value: Uint8Array, typeOid: number): any {
       return decodePointArray(strValue);
     case Oid.bytea:
       return decodeBytea(strValue);
+    case Oid.circle:
+      return decodeCircle(strValue);
+    case Oid._circle:
+      return decodeCircleArray(strValue);
+    case Oid.lseg:
+      return decodeLineSegment(strValue);
+    case Oid._lseg:
+      return decodeLineSegmentArray(strValue);
     default:
       throw new Error(`Don't know how to parse column type: ${typeOid}`);
   }

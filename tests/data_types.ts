@@ -317,3 +317,40 @@ testClient(async function pointArray() {
     [[{ x: 1, y: 2 }, { x: 3.5, y: 4.1 }]],
   ]);
 });
+
+testClient(async function circle() {
+  const result = await CLIENT.query(
+    `SELECT circle(point(1.23,2.56), 3.78)`,
+  );
+  assertEquals(result.rows, [[{ x: 1.23, y: 2.56, radius: 3.78 }]]);
+});
+
+testClient(async function circleArray() {
+  const result = await CLIENT.query(
+    `SELECT array[circle(point(1.98,2.44),3.12), circle(point(5.55,6.43), 7.12)]`,
+  );
+  assertEquals(result.rows, [
+    [[{ x: 1.98, y: 2.44, radius: 3.12 }, { x: 5.55, y: 6.43, radius: 7.12 }]],
+  ]);
+});
+
+testClient(async function lineSegment() {
+  const result = await CLIENT.query(
+    `SELECT lseg(point(1.23, 4.56), point(9.87, 6.54))`,
+  );
+  assertEquals(result.rows, [
+    [[{ x: 1.23, y: 4.56 }, { x: 9.87, y: 6.54 }]],
+  ]);
+});
+
+testClient(async function lineSegmentArray() {
+  const result = await CLIENT.query(
+    `SELECT array[lseg(point(1.23, 2.34), point(3.45, 4.56)), lseg(point(5.67, 6.78), point(7.89, 8.91))]`,
+  );
+  assertEquals(result.rows, [
+    [[
+      [{ x: 1.23, y: 2.34 }, { x: 3.45, y: 4.56 }],
+      [{ x: 5.67, y: 6.78 }, { x: 7.89, y: 8.91 }],
+    ]],
+  ]);
+});
